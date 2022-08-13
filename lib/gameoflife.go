@@ -17,3 +17,14 @@ func CreateMap(rows, columns int) Map {
 	}
 	return Map{rows, columns, 0, tempMap}
 }
+
+func (tempMap *Map) InitialiseGrid(liveCellCount int, liveCells [][]int) {
+	for i := 0; i < liveCellCount; i++ {
+		if liveCells[i][0] < tempMap.rows && liveCells[i][1] < tempMap.columns {
+			tempMap.Grid[liveCells[i][0]][liveCells[i][1]] = true
+		} else {
+			panic("Index out of range")
+		}
+	}
+	tempMap.liveCells = liveCellCount
+}

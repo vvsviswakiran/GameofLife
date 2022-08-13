@@ -49,3 +49,43 @@ func TestCreateMap(t *testing.T) {
 		}
 	})
 }
+
+func TestInitialiseGrid(t *testing.T) {
+	rows := 3
+	columns := 3
+	tempMap := CreateMap(rows, columns)
+	NumberOfLiveCells := 2
+	liveCells := make([][]int, NumberOfLiveCells)
+	for i := range liveCells {
+		liveCells[i] = make([]int, 2)
+	}
+	liveCells[0][0] = 1
+	liveCells[0][1] = 1
+	liveCells[1][0] = 2
+	liveCells[1][1] = 2
+
+	t.Run("check if we can initialise Grid", func(t *testing.T) {
+		assert.NotPanics(t, func() {
+			tempMap.InitialiseGrid(NumberOfLiveCells, liveCells)
+		})
+	})
+
+	t.Run("check if Grid is properly initialised with passed live cells", func(t *testing.T) {
+		for i := 0; i < NumberOfLiveCells; i++ {
+			assert.Equal(t, true, tempMap.Grid[liveCells[i][0]][liveCells[i][1]])
+		}
+	})
+
+	liveCells[1][0] = 3
+	liveCells[1][1] = 3
+
+	t.Run("check if it panics when index of live cells go out of range", func(t *testing.T) {
+		assert.Panics(t, func() {
+			tempMap.InitialiseGrid(NumberOfLiveCells, liveCells)
+		})
+	})
+
+	t.Run("check if number of live cells is initialised coorectly", func(t *testing.T) {
+		assert.Equal(t, NumberOfLiveCells, tempMap.liveCells)
+	})
+}
