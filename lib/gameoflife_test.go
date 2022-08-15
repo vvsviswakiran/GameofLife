@@ -108,29 +108,99 @@ func TestGetNumberOfLiveNeighbours(t *testing.T) {
 	tempMap.InitialiseGrid(NumberOfLiveCells, liveCells)
 
 	t.Run("check if we can get number of neighbours for a cell", func(t *testing.T) {
-		assert.Equal(t, 0, tempMap.getNumberOfLiveNeighbours(0, 0))
+		assert.Equal(t, 0, tempMap.GetNumberOfLiveNeighbours(0, 0))
 	})
 
 	t.Run("check if it raises exception when row and column passed are out of range", func(t *testing.T) {
 		assert.Panics(t, func() {
-			tempMap.getNumberOfLiveNeighbours(3, 2)
+			tempMap.GetNumberOfLiveNeighbours(3, 2)
 		})
 		assert.Panics(t, func() {
-			tempMap.getNumberOfLiveNeighbours(0, -2)
+			tempMap.GetNumberOfLiveNeighbours(0, -2)
 		})
 	})
 
 	t.Run("check if it does not raises exception when row and column passed are in range", func(t *testing.T) {
 		assert.NotPanics(t, func() {
-			tempMap.getNumberOfLiveNeighbours(1, 0)
+			tempMap.GetNumberOfLiveNeighbours(1, 0)
 		})
 	})
 
 	t.Run("check if number of live neighbours are calculated correctly for all edges without raising exception", func(t *testing.T) {
-		assert.Equal(t, 2, tempMap.getNumberOfLiveNeighbours(1, 1))
-		assert.Equal(t, 0, tempMap.getNumberOfLiveNeighbours(2, 0))
-		assert.Equal(t, 1, tempMap.getNumberOfLiveNeighbours(0, 2))
-		assert.Equal(t, 1, tempMap.getNumberOfLiveNeighbours(2, 2))
-		assert.Equal(t, 0, tempMap.getNumberOfLiveNeighbours(0, 0))
+		assert.Equal(t, 2, tempMap.GetNumberOfLiveNeighbours(1, 1))
+		assert.Equal(t, 0, tempMap.GetNumberOfLiveNeighbours(2, 0))
+		assert.Equal(t, 1, tempMap.GetNumberOfLiveNeighbours(0, 2))
+		assert.Equal(t, 1, tempMap.GetNumberOfLiveNeighbours(2, 2))
+		assert.Equal(t, 0, tempMap.GetNumberOfLiveNeighbours(0, 0))
+	})
+}
+
+func TestGetNextGeneration(t *testing.T) {
+	rows := 3
+	columns := 3
+	tempMap := CreateMap(rows, columns)
+
+	t.Run("check if we can get next generation grid", func(t *testing.T) {
+		assert.NotPanics(t, func() {
+			tempMap.GetNextGeneration()
+		})
+	})
+
+	t.Run("check if we get same next generation when there are no live cells", func(t *testing.T) {
+		assert.Equal(t, tempMap, tempMap.GetNextGeneration())
+	})
+
+	NumberOfLiveCells := 6
+	liveCells := make([][]int, NumberOfLiveCells)
+	for i := range liveCells {
+		liveCells[i] = make([]int, 2)
+	}
+	liveCells[0][0] = 0
+	liveCells[0][1] = 0
+	liveCells[1][0] = 1
+	liveCells[1][1] = 0
+	liveCells[2][0] = 2
+	liveCells[2][1] = 0
+	liveCells[3][0] = 2
+	liveCells[3][1] = 1
+	liveCells[4][0] = 2
+	liveCells[4][1] = 2
+	liveCells[5][0] = 1
+	liveCells[5][1] = 2
+	tempMap.InitialiseGrid(NumberOfLiveCells, liveCells)
+	nextGenMap := tempMap.GetNextGeneration()
+
+	t.Run("check if live cell count in next generation is calculated correctly", func(t *testing.T) {
+		assert.Equal(t, 5, nextGenMap.liveCells)
+	})
+
+	t.Run("check if a live cell with less than three live neighbours dies in next generation", func(t *testing.T) {
+		assert.Equal(t, true, tempMap.Grid[0][0])
+		assert.Greater(t, 2, tempMap.GetNumberOfLiveNeighbours(0, 0))
+		assert.Equal(t, false, nextGenMap.Grid[0][0])
+	})
+
+	t.Run("check if a live cell with two live neighbours lives on to next generation", func(t *testing.T) {
+		assert.Equal(t, true, tempMap.Grid[1][2])
+		assert.Equal(t, 2, tempMap.GetNumberOfLiveNeighbours(1, 2))
+		assert.Equal(t, true, nextGenMap.Grid[1][2])
+	})
+
+	t.Run("check if a live cell with three live neighbours lives on to next generation", func(t *testing.T) {
+		assert.Equal(t, true, tempMap.Grid[1][0])
+		assert.Equal(t, 3, tempMap.GetNumberOfLiveNeighbours(0, 1))
+		assert.Equal(t, true, nextGenMap.Grid[0][1])
+	})
+
+	t.Run("check if a dead cell with exactly three live neighbours lives in next generation", func(t *testing.T) {
+		assert.Equal(t, false, tempMap.Grid[0][1])
+		assert.Equal(t, 3, tempMap.GetNumberOfLiveNeighbours(0, 1))
+		assert.Equal(t, true, nextGenMap.Grid[0][1])
+	})
+
+	t.Run("check if a live cell with more than three live neighbours dies in next generation", func(t *testing.T) {
+		assert.Equal(t, true, tempMap.Grid[2][1])
+		assert.Less(t, 3, tempMap.GetNumberOfLiveNeighbours(2, 1))
+		assert.Equal(t, false, nextGenMap.Grid[2][1])
 	})
 }

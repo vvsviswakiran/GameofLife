@@ -29,14 +29,14 @@ func (tempMap *Map) InitialiseGrid(liveCellCount int, liveCells [][]int) {
 	tempMap.liveCells = liveCellCount
 }
 
-func (tempMap Map) getNumberOfLiveNeighbours(row, column int) int {
+func (tempMap Map) GetNumberOfLiveNeighbours(row, column int) int {
 	if row < 0 || row >= tempMap.rows || column < 0 || column >= tempMap.columns {
 		panic("Index out of range")
 	}
 	neighbours := 0
 	for i := row - 1; i <= row+1; i++ {
 		for j := column - 1; j <= column+1; j++ {
-			if i > 0 && j > 0 && i < tempMap.rows && j < tempMap.columns {
+			if i >= 0 && j >= 0 && i < tempMap.rows && j < tempMap.columns {
 				if tempMap.Grid[i][j] == true {
 					neighbours++
 				}
@@ -47,4 +47,31 @@ func (tempMap Map) getNumberOfLiveNeighbours(row, column int) int {
 		return neighbours - 1
 	}
 	return neighbours
+}
+
+func (tempMap Map) GetNextGeneration() Map {
+	if tempMap.liveCells == 0 {
+		return tempMap
+	}
+	nextGenMap := CreateMap(tempMap.rows, tempMap.columns)
+	nextGenMap.liveCells = tempMap.liveCells
+	for i := 0; i < tempMap.rows; i++ {
+		for j := 0; j < tempMap.columns; j++ {
+			neighbours := tempMap.GetNumberOfLiveNeighbours(i, j)
+			if tempMap.Grid[i][j] == false {
+				if neighbours == 3 {
+					nextGenMap.Grid[i][j] = true
+					nextGenMap.liveCells += 1
+				}
+			} else {
+				if neighbours < 2 || neighbours > 3 {
+					nextGenMap.Grid[i][j] = false
+					nextGenMap.liveCells -= 1
+				} else {
+					nextGenMap.Grid[i][j] = true
+				}
+			}
+		}
+	}
+	return nextGenMap
 }
