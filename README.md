@@ -13,3 +13,13 @@ The next generation depends on following conditions
 ## Environment
 
 * go version 1.19
+
+## Test Instructions
+
+To execute test cases, open terminal in lib directory and run below command
+
+    $ go test
+
+To execute test cases and also see verbose, run below command
+
+    $ go test -v
